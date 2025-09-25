@@ -8,6 +8,8 @@ import SignupScreen from './screens/SignupScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import AttendanceScreen from './screens/AttendanceScreen';
 import ReportScreen from './screens/ReportScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import AnnouncementScreen from './screens/AnnouncementScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +46,16 @@ export default function App() {
           name="Report"
           component={ReportScreen}
           options={{ title: 'Attendance Report' }}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{ title: 'Your Profile' }}
+        />
+        <Stack.Screen
+          name="Announcements"
+          component={AnnouncementScreen}
+          options={{ title: 'Church Announcements' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

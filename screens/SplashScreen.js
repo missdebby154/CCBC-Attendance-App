@@ -1,34 +1,71 @@
-import React, { useEffect } from 'react';
-import { View, ImageBackground, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import {
+  View,
+  ImageBackground,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Animatable from 'react-native-animatable';
 
 export default function SplashScreen({ navigation }) {
   return (
     <ImageBackground
-      source={require('../assets/splash.png')}
+      source={require('../assets/newsplash.png')}
       style={styles.background}
       resizeMode="cover"
     >
-      <View style={styles.overlay}>
-        <Text style={styles.logo}>CCBC</Text>
-        <Text style={styles.name}>Central Charismatic Baptist Church</Text>
-        <Text style={styles.motto}>Shalom</Text>
+      <LinearGradient
+        colors={['rgba(0,0,0,0.4)', 'transparent']}
+        style={styles.overlay}
+      >
+        <View style={styles.content}>
+          <Animatable.Text
+            animation="fadeInDown"
+            delay={200}
+            style={[styles.logo, { color: '#cc0000' }]}
+          >
+            CCBC
+          </Animatable.Text>
 
-        <View style={styles.buttonContainer}>
+          <Animatable.Text
+            animation="fadeInUp"
+            delay={400}
+            style={[styles.name, { color: '#003366' }]}
+          >
+            Central Charismatic Baptist Church
+          </Animatable.Text>
+
+          <Animatable.Text
+            animation="fadeInUp"
+            delay={600}
+            style={styles.motto}
+          >
+            “Shalom” — Peace be unto you
+          </Animatable.Text>
+        </View>
+
+        <Animatable.View
+          animation="fadeInUp"
+          delay={800}
+          style={styles.buttonContainer}
+        >
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, styles.loginButton]}
             onPress={() => navigation.navigate('Login')}
           >
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, styles.signupButton]}
             onPress={() => navigation.navigate('Signup')}
           >
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
-        </View>
-      </View>
+        </Animatable.View>
+      </LinearGradient>
     </ImageBackground>
   );
 }
@@ -36,45 +73,57 @@ export default function SplashScreen({ navigation }) {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#000', // fallback color
   },
   overlay: {
+    flex: 1,
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    padding: 20,
-    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingTop: 80,
+    paddingBottom: 60,
+  },
+  content: {
+    alignItems: 'center',
   },
   logo: {
-    fontSize: 48,
+    fontSize: 60,
     fontWeight: 'bold',
-    color: '#fff',
     marginBottom: 10,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 4,
   },
   name: {
-    fontSize: 18,
-    color: '#fff',
+    fontSize: 20,
+    textAlign: 'center',
     marginBottom: 5,
   },
   motto: {
-    fontSize: 24,
+    fontSize: 22,
     color: '#fff',
     fontStyle: 'italic',
-    marginBottom: 20,
+    textAlign: 'center',
+    marginTop: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
     gap: 15,
   },
   button: {
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    elevation: 3,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    elevation: 4,
+  },
+  loginButton: {
+    backgroundColor: '#cc0000',
+  },
+  signupButton: {
+    backgroundColor: '#003366',
   },
   buttonText: {
-    color: '#003366',
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },

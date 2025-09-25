@@ -3,10 +3,10 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   Image,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -19,13 +19,13 @@ export default function SignupScreen({ navigation }) {
     if (!fullName || !phoneNumber || !password) {
       Alert.alert('Signup Failed', 'Please fill in all fields.');
     } else {
-      navigation.navigate('Dashboard'); // Replace with your actual screen name
+      navigation.navigate('Dashboard');
     }
   };
 
   return (
     <LinearGradient
-      colors={['#003366', '#990000']} // CCBC blue to red
+      colors={['#003366', '#990000']}
       style={styles.background}
     >
       <View style={styles.card}>
@@ -34,16 +34,19 @@ export default function SignupScreen({ navigation }) {
           style={styles.avatar}
         />
         <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Join the CCBC family today</Text>
 
         <TextInput
           style={styles.input}
           placeholder="Full Name"
+          placeholderTextColor="#666"
           value={fullName}
           onChangeText={setFullName}
         />
         <TextInput
           style={styles.input}
           placeholder="Phone Number"
+          placeholderTextColor="#666"
           keyboardType="phone-pad"
           value={phoneNumber}
           onChangeText={setPhoneNumber}
@@ -51,12 +54,22 @@ export default function SignupScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Password"
+          placeholderTextColor="#666"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
         />
 
-        <Button title="Sign Up" color="#003366" onPress={handleSignup} />
+        <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
+          <LinearGradient
+            colors={['#cc0000', '#003366']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.signupGradient}
+          >
+            <Text style={styles.signupText}>Sign Up</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
     </LinearGradient>
   );
@@ -70,28 +83,32 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 15,
+    padding: 25,
+    borderRadius: 20,
     width: '85%',
     alignItems: 'center',
-    elevation: 5,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     marginBottom: 15,
-    backgroundColor: '#ccc',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    backgroundColor: '#eee',
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#003366',
+    marginBottom: 5,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
     marginBottom: 20,
   },
   input: {
@@ -99,8 +116,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#003366',
     backgroundColor: '#fff',
-    padding: 10,
+    padding: 12,
     marginBottom: 15,
-    borderRadius: 8,
+    borderRadius: 10,
+    fontSize: 16,
+  },
+  signupButton: {
+    width: '100%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginTop: 10,
+  },
+  signupGradient: {
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  signupText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

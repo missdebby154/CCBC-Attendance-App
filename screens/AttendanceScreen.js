@@ -1,66 +1,102 @@
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
-import colors from '../constants/colors'; // Make sure this file exists
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export default function AttendanceScreen() {
-  const [status, setStatus] = useState(null); // 'Present' or 'Absent'
-
-  const markAttendance = (value) => {
-    setStatus(value);
-    Alert.alert('Attendance Marked', `You are marked as ${value}`);
-    // You can later send this to a backend or store locally
+export default function AttendanceScreen({ navigation }) {
+  const handleConfirm = () => {
+    Alert.alert(
+      '✅ Attendance Confirmed',
+      'Your attendance has been successfully recorded.'
+    );
+    navigation.navigate('Dashboard');
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mark Your Attendance</Text>
+    <LinearGradient
+      colors={['#003366', '#990000']} // CCBC blue to red
+      style={styles.background}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.card}>
+          <FontAwesome5 name="check-circle" size={90} color="#003366" />
+          <Text style={styles.title}>Mark Attendance</Text>
+          <Text style={styles.message}>
+            You are at church. Tap below to confirm your attendance.
+          </Text>
 
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Present"
-          color={colors.primaryBlue}
-          onPress={() => markAttendance('Present')}
-        />
+          <TouchableOpacity style={styles.button} onPress={handleConfirm}>
+            <LinearGradient
+              colors={['#cc0000', '#003366']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.gradient}
+            >
+              <Text style={styles.buttonText}>Confirm Attendance</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       </View>
-
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Absent"
-          color={colors.primaryRed}
-          onPress={() => markAttendance('Absent')}
-        />
-      </View>
-
-      {status && (
-        <Text style={styles.statusText}>
-          Status: <Text style={{ fontWeight: 'bold' }}>{status}</Text>
-        </Text>
-      )}
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    backgroundColor: colors.background,
-    padding: 20,
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: 30,
+    borderRadius: 20,
+    alignItems: 'center',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    width: '90%',
   },
   title: {
-    fontSize: 24,
-    color: colors.primaryBlue,
-    marginBottom: 30,
-    textAlign: 'center',
+    fontSize: 26,
     fontWeight: 'bold',
-  },
-  buttonContainer: {
-    marginVertical: 10,
-  },
-  statusText: {
-    marginTop: 30,
-    fontSize: 18,
+    color: '#003366',
+    marginVertical: 15,
     textAlign: 'center',
-    color: colors.textDark,
+  },
+  message: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  button: {
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  gradient: {
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
