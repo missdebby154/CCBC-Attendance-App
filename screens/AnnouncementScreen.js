@@ -1,76 +1,102 @@
+import { StyleSheet, Text, View, ActivityIndicator, FlatList, Image } from 'react-native';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { db } from '../configs/firebaseconfig';
+import { useEffect, useState } from 'react';
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 
-export default function AnnouncementScreen() {
-  const announcements = [
-    { icon: '📖', text: 'Wednesday Prayer Meeting at 6:30 PM', color: '#003366' },
-    { icon: '🔥', text: 'Friday Fire for Fire at 6:30 PM', color: '#cc0000' },
-    { icon: '⛪', text: 'Sunday First Service at 6:30 AM', color: '#006600' },
-    { icon: '⛪', text: 'Sunday Second Service at 9:00 AM', color: '#006600' },
-    { icon: '⛪', text: 'Sunday Third Service at 11:00 AM', color: '#006600' },
-    { icon: '🎶', text: 'Choir Practice Saturday at 4:00 PM', color: '#990099' },
-  ];
+const AnnouncementScreen = () => {
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const fetchAnnouncements = async () => {
+    try {
+      setLoading(true);
+      const q = query(collection(db, 'Annoucements')); // Ensure this matches your Firestore collection name
+      const querySnapshot = await getDocs(q);
+
+      const list = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return { id: doc.id, ...data };
+      });
+
+      setAnnouncements(list);
+    } catch (error) {
+      console.error('fetchAnnouncements error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      {item.icon && (
+        <Image source={{ uri: item.icon }} style={styles.icon} resizeMode="contain" />
+      )}
+      <Text style={styles.title}>{item.Title}</Text>
+      <Text style={styles.body}>{item.body}</Text>
+    </View>
+  );
 
   return (
-    <LinearGradient colors={['#e6f0ff', '#ffffff']} style={styles.background}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <MaterialIcons name="announcement" size={80} color="#cc0000" />
-        <Text style={styles.title}>Church Announcements</Text>
-        <Text style={styles.subtitle}>“Let everything be done decently and in order.” — 1 Corinthians 14:40</Text>
-
-        {announcements.map((item, index) => (
-          <View key={index} style={[styles.card, { borderLeftColor: item.color }]}>
-            <Text style={styles.cardIcon}>{item.icon}</Text>
-            <Text style={styles.cardText}>{item.text}</Text>
-          </View>
-        ))}
-      </ScrollView>
-    </LinearGradient>
+    <View style={styles.container}>
+      <FlatList
+        data={announcements}
+        horizontal={false}
+        style={styles.list}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+      />
+    </View>
   );
-}
+};
+
+export default AnnouncementScreen;
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
   container: {
-    padding: 20,
+    flex: 1,
+    paddingVertical: 20,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginVertical: 10,
-    color: '#cc0000',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 14,
-    fontStyle: 'italic',
-    color: '#555',
-    marginBottom: 20,
-    textAlign: 'center',
+  list: {
+    paddingHorizontal: 10,
   },
   card: {
-    width: '100%',
-    backgroundColor: '#fff',
+    width: 250,
+    marginRight: 15,
     padding: 15,
-    marginBottom: 12,
-    borderRadius: 12,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
     elevation: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderLeftWidth: 6,
   },
-  cardIcon: {
-    fontSize: 24,
-    marginRight: 12,
+  icon: {
+    width: 50,
+    height: 50,
+    marginBottom: 10,
   },
-  cardText: {
-    fontSize: 16,
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  body: {
+    fontSize: 14,
     color: '#333',
-    flexShrink: 1,
   },
 });
