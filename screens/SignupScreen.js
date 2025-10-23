@@ -1,3 +1,4 @@
+// SignupScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -11,7 +12,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../configs/firebaseconfig';
+import { auth, db } from '../configs/firebaseconfig';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function SignupScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
@@ -33,12 +35,20 @@ export default function SignupScreen({ navigation }) {
       return;
     }
 
-    // Treat phone number as pseudo email for Firebase
     const pseudoEmail = `${phoneNumber}@ccbc.com`;
 
     try {
       setLoading(true);
-      await createUserWithEmailAndPassword(auth, pseudoEmail, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, pseudoEmail, password);
+      const uid = userCredential.user.uid;
+
+      // Save profile in Firestore under users/{uid}
+      await setDoc(doc(db, 'users', uid), {
+        fullName: fullName.trim(),
+        phoneNumber: phoneNumber.trim(),
+        createdAt: serverTimestamp(),
+      });
+
       Alert.alert('Signup Successful', 'Welcome to CCBC!');
       navigation.navigate('Dashboard');
     } catch (error) {
@@ -141,17 +151,20 @@ export default function SignupScreen({ navigation }) {
             </Text>
           </LinearGradient>
         </TouchableOpacity>
+
+        <View style={styles.loginRedirectContainer}>
+          <Text style={styles.loginPrompt}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.loginLink}>Log In</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  background: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   card: {
     backgroundColor: '#fff',
     padding: 25,
@@ -164,58 +177,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
   },
-  avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: 15,
-    backgroundColor: '#eee',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#003366',
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
-  },
-  input: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#003366',
-    backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 15,
-    borderRadius: 10,
-    fontSize: 16,
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 15,
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 15,
-  },
-  signupButton: {
-    width: '100%',
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginTop: 10,
-  },
-  signupGradient: {
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  signupText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  avatar: { width: 90, height: 90, borderRadius: 45, marginBottom: 15, backgroundColor: '#eee' },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#003366', marginBottom: 5 },
+  subtitle: { fontSize: 14, color: '#666', marginBottom: 20 },
+  input: { width: '100%', borderWidth: 1, borderColor: '#003366', backgroundColor: '#fff', padding: 12, marginBottom: 15, borderRadius: 10, fontSize: 16 },
+  passwordContainer: { flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 15 },
+  eyeIcon: { position: 'absolute', right: 15 },
+  signupButton: { width: '100%', borderRadius: 10, overflow: 'hidden', marginTop: 10 },
+  signupGradient: { paddingVertical: 12, alignItems: 'center', borderRadius: 10 },
+  signupText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  loginRedirectContainer: { flexDirection: 'row', marginTop: 15 },
+  loginPrompt: { color: '#666', fontSize: 14 },
+  loginLink: { color: '#003366', fontWeight: 'bold', fontSize: 14 },
 });
