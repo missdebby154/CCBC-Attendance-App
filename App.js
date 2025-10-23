@@ -25,9 +25,14 @@ function ProfileStack() {
   return (
     <ProfileStackNav.Navigator
       initialRouteName="ProfileMain"
-      screenOptions={{ headerShown: true }}
+      screenOptions={{
+        headerTitleAlign: 'center',   // Center the header title
+        headerTitleStyle: {           // Make title bold
+          fontWeight: 'bold',
+          fontSize: 25,
+        },
+      }}
     >
-      {/* The nested navigator's route names must match the names you use in navigation.navigate('Profile', { screen: '...' }) */}
       <ProfileStackNav.Screen
         name="ProfileMain"
         component={ProfileScreen}
@@ -65,49 +70,51 @@ function ProfileStack() {
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash">
+      <Stack.Navigator
+        initialRouteName="Splash"
+        screenOptions={{
+          headerTitleAlign: 'center',   // Center titles
+          headerTitleStyle: {
+            fontWeight: 'bold',         // Bold titles
+            fontSize: 25,
+          },
+        }}
+      >
         <Stack.Screen
           name="Splash"
           component={SplashScreen}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{ title: 'Log In' }}
         />
-
         <Stack.Screen
           name="Signup"
           component={SignupScreen}
           options={{ title: 'Sign Up' }}
         />
-
         <Stack.Screen
           name="Dashboard"
           component={DashboardScreen}
           options={{ title: 'Dashboard' }}
         />
-
         <Stack.Screen
           name="Attendance"
           component={AttendanceScreen}
           options={{ title: 'Mark Attendance' }}
         />
-
         <Stack.Screen
           name="Report"
           component={ReportScreen}
           options={{ title: 'Attendance Report' }}
         />
-
         <Stack.Screen
           name="Profile"
           component={ProfileStack}
           options={{ headerShown: false }}
         />
-
         <Stack.Screen
           name="Announcements"
           component={AnnouncementScreen}

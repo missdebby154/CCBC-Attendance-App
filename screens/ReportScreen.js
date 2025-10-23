@@ -1,19 +1,97 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+// ReportScreen.js
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  FlatList,
+} from 'react-native';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Animatable from 'react-native-animatable';
+import { auth, db } from '../configs/firebaseconfig';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 
 export default function ReportScreen() {
-  const attendanceRecords = [
-    { date: '2025-09-01', service: 'Sunday First Service', status: 'Present' },
-    { date: '2025-09-03', service: 'Wednesday Prayer Meeting', status: 'Present' },
-    { date: '2025-09-06', service: 'Friday Fire for Fire', status: 'Absent' },
-    { date: '2025-09-08', service: 'Sunday Second Service', status: 'Present' },
-    { date: '2025-09-10', service: 'Wednesday Prayer Meeting', status: 'Present' },
-  ];
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
+      const user = auth.currentUser;
+      if (!user) {
+        setRecords([]);
+        setLoading(false);
+        return;
+      }
+
+      const q = query(
+        collection(db, 'attendance'),
+        where('uid', '==', user.uid),
+        orderBy('createdAt', 'desc')
+      );
+
+      const snap = await getDocs(q);
+      const list = snap.docs.map((d) => {
+        const data = d.data();
+        return {
+          id: d.id,
+          date: data.date || '',
+          time: data.time || '',
+          service: data.service || '',
+          status: data.status || '',
+        };
+      });
+
+      setRecords(list);
+    } catch (err) {
+      console.error('fetchRecords error', err);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderRecord = ({ item, index }) => (
+    <Animatable.View
+      animation="fadeInUp"
+      delay={index * 100}
+      duration={500}
+      style={styles.card}
+    >
+      <View style={styles.cardTop}>
+        <View style={styles.dateTimeContainer}>
+          <View style={styles.row}>
+            <Ionicons name="calendar" size={16} color="#003366" />
+            <Text style={styles.date}>{item.date}</Text>
+          </View>
+          <View style={styles.row}>
+            <MaterialIcons name="access-time" size={16} color="#003366" />
+            <Text style={styles.time}>{item.time}</Text>
+          </View>
+        </View>
+
+        <View
+          style={[
+            styles.statusBadge,
+            item.status === 'Present' ? styles.present : styles.absent,
+          ]}
+        >
+          <Text style={styles.statusText}>{item.status}</Text>
+        </View>
+      </View>
+      <Text style={styles.service}>{item.service}</Text>
+    </Animatable.View>
+  );
+
+  const Header = () => (
+    <Animatable.View animation="fadeInDown" duration={800}>
       <LinearGradient
         colors={['#003366', '#990000']}
         start={{ x: 0, y: 0 }}
@@ -23,24 +101,34 @@ export default function ReportScreen() {
         <Ionicons name="stats-chart" size={60} color="#fff" />
         <Text style={styles.headerText}>Attendance Report</Text>
       </LinearGradient>
+    </Animatable.View>
+  );
 
-      {attendanceRecords.map((record, index) => (
-        <View key={index} style={styles.card}>
-          <View style={styles.cardTop}>
-            <Text style={styles.date}>{record.date}</Text>
-            <View
-              style={[
-                styles.statusBadge,
-                record.status === 'Present' ? styles.present : styles.absent,
-              ]}
-            >
-              <Text style={styles.statusText}>{record.status}</Text>
-            </View>
-          </View>
-          <Text style={styles.service}>{record.service}</Text>
+  if (loading) {
+    return (
+      <LinearGradient colors={['#003366', '#990000']} style={styles.loadingBg}>
+        <ActivityIndicator size="large" color="#fff" />
+      </LinearGradient>
+    );
+  }
+
+  return (
+    <FlatList
+      data={records}
+      keyExtractor={(i) => i.id}
+      renderItem={renderRecord}
+      contentContainerStyle={
+        records.length
+          ? styles.container
+          : [styles.container, { flex: 1, justifyContent: 'center' }]
+      }
+      ListHeaderComponent={<Header />}
+      ListEmptyComponent={
+        <View style={styles.empty}>
+          <Text style={styles.emptyText}>No attendance records yet.</Text>
         </View>
-      ))}
-    </ScrollView>
+      }
+    />
   );
 }
 
@@ -48,6 +136,12 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: '#f2f2f2',
+    paddingBottom: 40,
+  },
+  loadingBg: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     width: '100%',
@@ -79,10 +173,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  dateTimeContainer: {
+    justifyContent: 'center',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
   date: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#003366',
+    marginLeft: 4,
+  },
+  time: {
+    fontSize: 14,
+    color: '#003366',
+    marginLeft: 4,
   },
   service: {
     fontSize: 16,
@@ -99,10 +207,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  present: {
-    backgroundColor: '#28a745',
+  present: { backgroundColor: '#28a745' },
+  absent: { backgroundColor: '#dc3545' },
+
+  empty: {
+    paddingTop: 40,
+    alignItems: 'center',
   },
-  absent: {
-    backgroundColor: '#dc3545',
+  emptyText: {
+    color: '#666',
+    fontSize: 15,
   },
 });
