@@ -8,10 +8,59 @@ import SignupScreen from './screens/SignupScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import AttendanceScreen from './screens/AttendanceScreen';
 import ReportScreen from './screens/ReportScreen';
-import ProfileScreen from './screens/ProfileScreen';
 import AnnouncementScreen from './screens/AnnouncementScreen';
 
+// Profile-related screens
+import ProfileScreen from './screens/ProfileScreen'; 
+import EditProfile from './Profile/EditProfile';
+import Settings from './Profile/Settings';
+import Help from './Profile/Help';
+import Privacy from './Profile/Privacy';
+import About from './Profile/About';
+
 const Stack = createNativeStackNavigator();
+const ProfileStackNav = createNativeStackNavigator();
+
+function ProfileStack() {
+  return (
+    <ProfileStackNav.Navigator
+      initialRouteName="ProfileMain"
+      screenOptions={{ headerShown: true }}
+    >
+      {/* The nested navigator's route names must match the names you use in navigation.navigate('Profile', { screen: '...' }) */}
+      <ProfileStackNav.Screen
+        name="ProfileMain"
+        component={ProfileScreen}
+        options={{ title: 'Your Profile', headerShown: false }}
+      />
+      <ProfileStackNav.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{ title: 'Edit Profile' }}
+      />
+      <ProfileStackNav.Screen
+        name="Settings"
+        component={Settings}
+        options={{ title: 'Settings' }}
+      />
+      <ProfileStackNav.Screen
+        name="Help"
+        component={Help}
+        options={{ title: 'Help' }}
+      />
+      <ProfileStackNav.Screen
+        name="Privacy"
+        component={Privacy}
+        options={{ title: 'Privacy' }}
+      />
+      <ProfileStackNav.Screen
+        name="About"
+        component={About}
+        options={{ title: 'About' }}
+      />
+    </ProfileStackNav.Navigator>
+  );
+}
 
 export default function App() {
   return (
@@ -22,36 +71,43 @@ export default function App() {
           component={SplashScreen}
           options={{ headerShown: false }}
         />
+
         <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{ title: 'Log In' }}
         />
+
         <Stack.Screen
           name="Signup"
           component={SignupScreen}
           options={{ title: 'Sign Up' }}
         />
+
         <Stack.Screen
           name="Dashboard"
           component={DashboardScreen}
           options={{ title: 'Dashboard' }}
         />
+
         <Stack.Screen
           name="Attendance"
           component={AttendanceScreen}
           options={{ title: 'Mark Attendance' }}
         />
+
         <Stack.Screen
           name="Report"
           component={ReportScreen}
           options={{ title: 'Attendance Report' }}
         />
+
         <Stack.Screen
           name="Profile"
-          component={ProfileScreen}
-          options={{ title: 'Your Profile' }}
+          component={ProfileStack}
+          options={{ headerShown: false }}
         />
+
         <Stack.Screen
           name="Announcements"
           component={AnnouncementScreen}
