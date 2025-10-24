@@ -44,17 +44,6 @@ The **CCBC Attendance App** is a mobile application built with **React Native** 
 
 1. **Create Firebase Project**  
 2. **Enable Authentication (Email/Password)**  
-3. **Create Firestore Collections**
-   - `attendance` → fields: `uid`, `date`, `time`, `service`, `status`
-   - `users` → fields: `uid`, `fullname`, `gender`, `dob`, `address`, `occupation`, `department`, `notes`, `profilePicUrl`
+3. **Create Firestore Collections*
 4. **Enable Firebase Storage** for profile images
 5. **Firestore Rules**
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
